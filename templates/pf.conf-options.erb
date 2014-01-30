@@ -1,0 +1,34 @@
+# MANAGED BY PUPPET
+# DO NOT EDIT MANUALLY
+#
+# PF firewall for <%= fqdn %>
+
+### MACRO'S
+
+# macro for external interface
+ext_if = "<% if @interface.length == 1 -%><%= @interface[0] -%><% else -%>{<%= @interface.join(' ') %>}<% end -%>"
+
+# macro for icmp protocol types
+icmp =  "icmp ipv6-icmp"
+
+### OPTIONS
+
+# do not meddle with traffic on loopback device at all
+set skip on lo0
+
+# when dropping packets, do not send TCP RST or ICMP unreachable back
+set block-policy drop
+<% if @interface.length == 1 -%>
+  
+# gather statistics for external interface
+set loginterface $ext_if
+<% end -%>
+
+# do not share connection states between interfaces
+# NOTE: remove this or set to 'floating' when running a gateway
+set state-policy if-bound
+
+# all incoming traffic on external interface is normalized and fragmented
+# packets are reassembled.
+scrub in on $ext_if all fragment reassemble
+

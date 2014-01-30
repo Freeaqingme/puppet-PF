@@ -1,0 +1,4 @@
+
+# Puppet PF anchor <%= service %>
+anchor <%= service %>
+load anchor <%= service %> from "<%= scope.lookupvar('pf::params::pf_anchor_path') %>/anchor-<%= service %>"

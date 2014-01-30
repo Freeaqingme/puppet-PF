@@ -1,0 +1,32 @@
+### RULES
+
+# set default blocking policy for incoming traffic
+block in log all
+
+# exercise antispoofing on the external interface
+antispoof log quick for $ext_if
+
+# block packets that fail a reverse path check. we perform a look up
+# the routing table, check to make sure that the outbound is the same
+# as the source it came in on. if not, it is probably source address spoofed.
+block in quick from urpf-failed to any
+
+# drop broadcast requests quietly
+block in quick on $ext_if from any to 255.255.255.255
+
+# allow incoming icmp traffic
+pass in on $ext_if proto { $icmp } all keep state
+
+# keep state on any outbound tcp, udp or icmp traffic. modulate the ISN
+# (initial sequence number) of outgoing packets. Some operating systems
+# don't randomize this number (enough), making it predictable.
+pass out on $ext_if all modulate state
+<% if @trusted_networks and @trusted_networks.length > 0 -%>
+
+# trust traffic from these networks
+<%  @trusted_networks.each do |_network| -%>
+pass in quick from <%= _network %> to any all keep state
+<%  end -%>
+<% end -%>
+
+### ANCHORS

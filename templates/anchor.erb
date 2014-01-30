@@ -1,0 +1,29 @@
+# MANAGED BY PUPPET
+# DO NOT EDIT MANUALLY
+#
+ext_if = "{<%= @interface.join(' ') %>}"
+
+<% if @whitelist and whitelist.length > 0 -%>
+table <whitelist> const {
+<%  whitelist.each do |_ip| -%>
+  <%= _ip %>
+<%  end -%>
+}
+
+### allow addresses from table <whitelist> to connect to port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+pass in on $ext_if proto { <% protocols.each do |_protocol| -%><%= _protocol -%> <% end -%>} from <whitelist> to any port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+### but block any other addresses
+block in quick log on $ext_if proto { <% protocols.each do |_protocol| -%><%= _protocol -%> <% end -%>} from !<whitelist> to any port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+<% end %>
+<% if @blacklist and blacklist.length > 0 -%>
+table <blacklist> const {
+<%  blacklist.each do |_ip| -%>
+  <%= _ip %>
+<%  end -%>
+}
+
+### allow all addresses to connect to port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+pass in on $ext_if proto { <% protocols.each do |_protocol| -%><%= _protocol -%> <% end -%>} from any to any port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+### but block addresses from <blacklist>
+block in quick log on $ext_if proto { <% protocols.each do |_protocol| -%><%= _protocol -%> <% end -%>} from <blacklist> to any port { <% ports.each do |_port| -%><%= _port -%> <% end -%>}
+<% end %>
