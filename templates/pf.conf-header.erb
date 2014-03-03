@@ -1,0 +1,29 @@
+# File managed by Puppet
+#
+# PF firewall rule declaration
+
+set block-policy <%= @block_policy %>
+<% if @skip_loopback == true -%>
+set skip on <%= @loopback_interface %>
+<% end %>
+<% if @log_interface -%>
+set loginterface <%= @log_interface %>
+<% end -%>
+<% @timeouts.each do |__timeout,__value| -%>
+set timeout <%= __timeout %> <%= __value %>
+<% end -%>
+<% @limits.each do |__limit,__value| -%>
+set limit <%= __limit %> <%= __value %>
+<% end -%>
+<% if @scrub_traffic == true -%>
+scrub all fragment reassemble
+<% end -%>
+
+block log all
+<% if @block_urpf_failed == true -%>
+block in log quick from urpf-failed to any
+<% end -%>
+<% if @block_to_broadcast == true -%>
+block in log quick from any to 255.255.255.255
+<% end -%>
+
