@@ -23,7 +23,6 @@ define pf::rule (
 ) {
 
     include ::pf
-    include ::concat::setup
 
     # The concat module may not support natural sorting,
     # so we make sure it's all at least 4 digits
