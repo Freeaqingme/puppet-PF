@@ -7,7 +7,7 @@ define pf::table {
     notify  => Exec['pf-reload']
   }
 
-  concat::fragment { "pf_table_entry__header":
+  concat::fragment { "pf_table_entry__header_${name}":
     target  => "pf_table_${name}",
     content => "# File managed by puppet\n\n",
     order   => 0,
