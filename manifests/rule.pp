@@ -11,8 +11,9 @@ define pf::rule (
     $destination_table = '',
     $protocol,
     $port,
+    $sport             = '',
     $state             = 'keep',
-    $order             = $pf::default_order,
+    $order             = '',
     $log               = '', # unimplemented
     $enable            = '', # unimplemented
     $max_src_nodes     = '',
@@ -51,6 +52,10 @@ define pf::rule (
         $do_port = " port ${port}"
     }
 
+    if $sport != '' {
+        $do_sport = " port ${sport}"
+    }
+
     # TODO: refactor this ... :|
     if $state != 'no'
         and $state != 'keep'
@@ -72,7 +77,7 @@ define pf::rule (
     concat::fragment { "${module_name}-rule-${name}":
         target  => $pf::config_file,
         order   => $true_order,
-        content => "${action} ${direction}${do_log} quick${do_interface}${do_protocol}${do_source}${do_destination}${do_port}${do_state}${do_ratelimit}\n",
+        content => "${action} ${direction}${do_log} quick${do_interface}${do_protocol}${do_source}${do_sport}${do_destination}${do_port}${do_state}${do_ratelimit}\n",
         notify  => Exec['pf-reload'],
     }
 
